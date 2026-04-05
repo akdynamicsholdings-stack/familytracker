@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Family Tracker"/>
+<title>Family Tracker 🌿</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{font-family:'Arial Black',Arial,sans-serif;background:#E8F5E9;min-height:100vh}
+button{font-family:'Arial Black',Arial,sans-serif;cursor:pointer;border:none;outline:none}
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+.rainbow-bar{height:6px;background:linear-gradient(90deg,#2E7D32,#66BB6A,#F9A825,#EF6C00,#E91E63,#7B1FA2,#1565C0,#00838F)}
+.card{background:#fff;border:4px solid #222;border-radius:24px;box-shadow:5px 5px 0 #222;overflow:hidden;margin-bottom:16px;cursor:pointer;transition:transform .1s}
+.card:active{transform:scale(0.98)}
+.chip{background:#fff;border:2px solid #222;border-radius:14px;padding:7px 4px;text-align:center;box-shadow:2px 2px 0 #222;flex:1}
+.chip-icon{font-size:16px}
+.chip-val{font-weight:900;font-size:14px;color:#222;line-height:1.1}
+.chip-label{font-size:9px;color:#888;font-weight:700}
+.progress-wrap{background:#EEE;border-radius:10px;height:14px;border:3px solid #222;overflow:hidden}
+.progress-fill{height:100%;border-radius:8px;transition:width .5s}
+.section-hdr{display:flex;align-items:center;border-top:2px solid #222;border-bottom:2px solid #222;padding:5px 10px}
+.section-label{font-size:11px;color:#fff;font-weight:900;letter-spacing:1px}
+.habit-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #F5F5F5}
+.habit-row.prayer-row{background:#F9F3FF;border-bottom:1px solid #CE93D8}
+.prayer-bar{width:3px;height:28px;background:#7B1FA2;border-radius:2px;flex-shrink:0}
+.habit-emoji{font-size:18px;flex-shrink:0}
+.habit-name{font-size:12px;color:#444;font-family:Arial;font-weight:700;line-height:1.3;flex:1}
+.habit-name.prayer-name{color:#4A148C}
+.check-btn{width:32px;height:32px;border-radius:8px;background:#fff;border:2px solid #CCC;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0;transition:all .15s}
+.check-btn.prayer-check{border-radius:16px}
+.check-btn.done{border:3px solid #222;box-shadow:2px 2px 0 #222}
+.day-bubble{width:44px;height:44px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #E0E0E0;margin:3px;background:#EEE;flex-shrink:0}
+.day-bubble.today{border:3px solid #222}
+.day-bubble.full{box-shadow:2px 2px 0 #222}
+.day-bubble.partial{}
+.day-num{font-size:12px;font-weight:900;color:#444}
+.day-pct{font-size:9px;font-weight:700;color:#555}
+.day-num.white{color:#fff}
+.day-pct.white{color:rgba(255,255,255,.85)}
+.month-nav{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 16px 6px}
+.month-btn{width:38px;height:38px;border-radius:12px;border:3px solid #222;font-size:20px;font-weight:900;color:#fff;box-shadow:3px 3px 0 #222;display:flex;align-items:center;justify-content:center}
+.month-label{background:#fff;border:3px solid #222;border-radius:16px;padding:8px 20px;font-weight:900;font-size:15px;color:#222;box-shadow:3px 3px 0 #222;min-width:190px;text-align:center}
+.back-btn{background:#fff;border:3px solid #222;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:900;box-shadow:3px 3px 0 #222;margin-bottom:12px;display:inline-block}
+.home-kid-card{border:4px solid #222;border-radius:24px;padding:14px 18px;margin-bottom:12px;cursor:pointer;box-shadow:5px 5px 0 #222;display:flex;align-items:center;gap:14px}
+.home-kid-card:active{transform:scale(0.98)}
+.avatar-circle{width:56px;height:56px;border-radius:28px;background:#fff;border:4px solid #222;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:2px 2px 0 #222;flex-shrink:0}
+.stat-row{display:flex;gap:8px;margin-top:10px}
+.heatmap{display:flex;flex-wrap:wrap;padding:0 4px}
+</style>
+</head>
+<body>
+
+<!-- HOME SCREEN -->
+
+<div id="home" class="screen active">
+  <div class="rainbow-bar"></div>
+  <div style="background:linear-gradient(135deg,#FF6F00,#FFA000,#FFD600,#AEEA00);padding:24px 20px 28px;border-bottom:4px solid #222">
+    <div style="font-size:40px;margin-bottom:6px;text-align:center">🏡✨</div>
+    <div style="color:#fff;font-size:26px;font-weight:900;text-align:center;text-shadow:2px 2px 0 rgba(0,0,0,.18)">Family Tracker!</div>
+    <div style="color:rgba(255,255,255,.85);font-size:12px;font-weight:700;text-align:center;margin-top:4px">Who are you today?</div>
+  </div>
+  <div style="padding:16px;max-width:420px;margin:0 auto">
+    <!-- Parent -->
+    <div class="home-kid-card" style="background:linear-gradient(135deg,#1B5E20,#2E7D32,#66BB6A)" onclick="goParent()">
+      <div style="font-size:44px">👨‍👩‍👧‍👦</div>
+      <div>
+        <div style="color:#fff;font-weight:900;font-size:18px;text-shadow:1px 1px 0 rgba(0,0,0,.2)">I'm the Parent 👀</div>
+        <div style="color:rgba(255,255,255,.85);font-size:11px;font-weight:700">Dashboard — see all 3 kids</div>
+      </div>
+    </div>
+    <!-- Kids -->
+    <div class="home-kid-card" style="background:linear-gradient(135deg,#1B5E20,#2E7D32,#66BB6A);transform:rotate(0.5deg)" onclick="goKid('kid7')">
+      <div class="avatar-circle" style="font-size:32px">🦕</div>
+      <div>
+        <div style="color:#fff;font-weight:900;font-size:16px;text-shadow:1px 1px 0 rgba(0,0,0,.2)">Syed Zayan Ahmed</div>
+        <div style="color:rgba(255,255,255,.8);font-size:10px;font-weight:700">Zayan's Dino Zone · Age 7</div>
+        <div style="color:rgba(255,255,255,.7);font-size:10px;font-weight:700">17 habits incl. 5 prayers</div>
+      </div>
+    </div>
+    <div class="home-kid-card" style="background:linear-gradient(135deg,#4A148C,#6A1B9A,#AB47BC);transform:rotate(-0.5deg)" onclick="goKid('kid10')">
+      <div class="avatar-circle" style="font-size:32px">🐶</div>
+      <div>
+        <div style="color:#fff;font-weight:900;font-size:16px;text-shadow:1px 1px 0 rgba(0,0,0,.2)">Syeda Inara</div>
+        <div style="color:rgba(255,255,255,.8);font-size:10px;font-weight:700">Inara's Puppy Corner · Age 10</div>
+        <div style="color:rgba(255,255,255,.7);font-size:10px;font-weight:700">19 habits incl. 5 prayers</div>
+      </div>
+    </div>
+    <div class="home-kid-card" style="background:linear-gradient(135deg,#BF360C,#E65100,#FFA726);transform:rotate(0.3deg)" onclick="goKid('kid12')">
+      <div class="avatar-circle" style="font-size:32px">🐱</div>
+      <div>
+        <div style="color:#fff;font-weight:900;font-size:16px;text-shadow:1px 1px 0 rgba(0,0,0,.2)">Syeda Inaya</div>
+        <div style="color:rgba(255,255,255,.8);font-size:10px;font-weight:700">Inaya's Cat Kingdom · Age 12</div>
+        <div style="color:rgba(255,255,255,.7);font-size:10px;font-weight:700">20 habits incl. 5 prayers</div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#888;font-family:Arial;font-weight:700;margin-top:8px">🔒 Data saved on this device</div>
+  </div>
+</div>
+
+<!-- PARENT DASHBOARD -->
+
+<div id="parent" class="screen">
+  <div class="rainbow-bar"></div>
+  <div style="background:linear-gradient(135deg,#FF6F00,#FFA000,#FFD600,#AEEA00);padding:18px 18px 20px;border-bottom:4px solid #222">
+    <button class="back-btn" style="color:#E65100" onclick="goHome()">← Home</button>
+    <div style="color:#fff;font-size:22px;font-weight:900;text-shadow:2px 2px 0 rgba(0,0,0,.18)">Parent Dashboard 👀</div>
+  </div>
+  <div class="month-nav">
+    <button class="month-btn" style="background:#2E7D32" onclick="changeMonth(-1)">‹</button>
+    <div class="month-label" id="parent-month-label">April 2026</div>
+    <button class="month-btn" style="background:#2E7D32" onclick="changeMonth(1)">›</button>
+  </div>
+  <div style="padding:0 16px 40px">
+    <!-- Family score -->
+    <div style="background:linear-gradient(135deg,#1B5E20,#2E7D32,#66BB6A);border:4px solid #222;border-radius:24px;padding:16px 20px;margin-bottom:14px;box-shadow:5px 5px 0 #222;display:flex;align-items:center;gap:14px">
+      <div style="font-size:48px;line-height:1">🌿</div>
+      <div style="flex:1">
+        <div style="color:rgba(255,255,255,.85);font-weight:900;font-size:11px;letter-spacing:2px">FAMILY AVERAGE</div>
+        <div id="fam-avg" style="color:#fff;font-size:40px;font-weight:900;text-shadow:2px 2px 0 rgba(0,0,0,.2)">0%</div>
+        <div class="progress-wrap" style="margin-top:8px">
+          <div id="fam-bar" class="progress-fill" style="background:#fff;width:0%"></div>
+        </div>
+      </div>
+      <div style="font-size:32px">🎉</div>
+    </div>
+    <!-- Prayer banner -->
+    <div style="background:linear-gradient(135deg,#F3E5F5,#E8EAF6);border:3px solid #7B1FA2;border-radius:18px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;box-shadow:3px 3px 0 #7B1FA2">
+      <div style="font-size:26px">🕌</div>
+      <div>
+        <div style="font-weight:900;color:#4A148C;font-size:12px">5 Daily Prayers Tracked</div>
+        <div style="font-size:10px;color:#7B1FA2;font-family:Arial;font-weight:700">Fajr · Dhuhr · Asr · Maghrib · Isha</div>
+      </div>
+    </div>
+    <!-- Kid summary cards -->
+    <div id="parent-cards"></div>
+  </div>
+</div>
+
+<!-- KID TRACKER -->
+
+<div id="kid" class="screen">
+  <div id="kid-header"></div>
+  <div style="background:#fff;border-bottom:3px solid #222;padding:12px 16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div id="kid-month-label" style="font-weight:900;font-size:14px;color:#222"></div>
+      <div style="display:flex;gap:6px">
+        <button id="kid-prev" class="month-btn" style="width:30px;height:30px;font-size:16px" onclick="changeMonth(-1)">‹</button>
+        <button id="kid-next" class="month-btn" style="width:30px;height:30px;font-size:16px" onclick="changeMonth(1)">›</button>
+      </div>
+    </div>
+    <div class="progress-wrap" style="height:14px">
+      <div id="kid-progress-fill" class="progress-fill" style="width:0%"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#999;font-family:Arial;margin-top:5px;font-weight:700">
+      <span>0%</span>
+      <span id="kid-pct-label" style="font-size:12px">🎯 0% DONE!</span>
+      <span>100%</span>
+    </div>
+  </div>
+  <div id="kid-habits" style="padding-bottom:16px"></div>
+  <div style="padding:16px">
+    <div style="font-weight:900;font-size:14px;color:#222;margin-bottom:10px">📊 This Month</div>
+    <div id="kid-heatmap" class="heatmap"></div>
+  </div>
+  <div style="text-align:center;padding:0 16px 32px;font-family:Arial;font-size:12px;color:#AAA;font-weight:700">Tap any circle to mark it done ✓ 🎉</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════
+const KIDS = {
+  kid7:{
+    name:"Syed Zayan Ahmed",avatar:"🦕",age:7,
+    label:"Zayan's Dino Zone",
+    color:"#2E7D32",colorBright:"#43A047",colorLight:"#F1F8E9",colorMid:"#A5D6A7",colorDark:"#1B5E20",
+    gradient:"linear-gradient(135deg,#1B5E20,#2E7D32,#66BB6A)",
+    sections:[
+      {label:"🌅 MORNING",color:"#FF6F00",habits:[
+        {id:"fajr",name:"Fajr Prayer",emoji:"🕌",p:true},
+        {id:"h1",name:"Wake up on time",emoji:"⏰"},
+        {id:"h2",name:"Make my bed",emoji:"🛏️"},
+        {id:"h3",name:"Brush teeth",emoji:"🦷"},
+        {id:"h4",name:"Get dressed",emoji:"👕"},
+        {id:"h5",name:"Brush hair / groom",emoji:"💆"},
+        {id:"h6",name:"Eat breakfast",emoji:"🥣"},
+      ]},
+      {label:"☀️ AFTERNOON",color:"#F57F17",habits:[
+        {id:"dhuhr",name:"Dhuhr Prayer",emoji:"🕌",p:true},
+        {id:"asr",name:"Asr Prayer",emoji:"🕌",p:true},
+        {id:"h7",name:"Handwriting (15 min)",emoji:"✏️"},
+        {id:"h8",name:"Reading / Study (20 min)",emoji:"📚"},
+        {id:"h9",name:"Pick up toys",emoji:"🧸"},
+      ]},
+      {label:"🌙 EVENING",color:"#4527A0",habits:[
+        {id:"maghrib",name:"Maghrib Prayer",emoji:"🕌",p:true},
+        {id:"h10",name:"Set & clear table",emoji:"🍽️"},
+        {id:"h11",name:"Put clothes in hamper",emoji:"👕"},
+        {id:"h12",name:"Brush teeth (PM)",emoji:"🦷"},
+        {id:"isha",name:"Isha Prayer",emoji:"🕌",p:true},
+        {id:"h13",name:"Read a book",emoji:"📖"},
+        {id:"h14",name:"Sleep by 9:00 PM",emoji:"😴"},
+      ]},
+    ]
+  },
+  kid10:{
+    name:"Syeda Inara",avatar:"🐶",age:10,
+    label:"Inara's Puppy Corner",
+    color:"#6A1B9A",colorBright:"#8E24AA",colorLight:"#F3E5F5",colorMid:"#CE93D8",colorDark:"#4A148C",
+    gradient:"linear-gradient(135deg,#4A148C,#6A1B9A,#AB47BC)",
+    sections:[
+      {label:"🌅 MORNING",color:"#FF6F00",habits:[
+        {id:"fajr",name:"Fajr Prayer",emoji:"🕌",p:true},
+        {id:"h1",name:"Wake up on time",emoji:"⏰"},
+        {id:"h2",name:"Make bed + tidy room",emoji:"🛏️"},
+        {id:"h3",name:"Brush teeth",emoji:"🦷"},
+        {id:"h4",name:"Pack school bag",emoji:"🎒"},
+        {id:"h5",name:"Eat breakfast",emoji:"🥣"},
+      ]},
+      {label:"☀️ AFTERNOON",color:"#F57F17",habits:[
+        {id:"dhuhr",name:"Dhuhr Prayer",emoji:"🕌",p:true},
+        {id:"asr",name:"Asr Prayer",emoji:"🕌",p:true},
+        {id:"h6",name:"Handwriting (20 min)",emoji:"✏️"},
+        {id:"h7",name:"Self-study (45 min)",emoji:"📚"},
+        {id:"h8",name:"Homework",emoji:"📖"},
+      ]},
+      {label:"🌙 EVENING",color:"#4527A0",habits:[
+        {id:"maghrib",name:"Maghrib Prayer",emoji:"🕌",p:true},
+        {id:"h9",name:"Help with dinner",emoji:"🍳"},
+        {id:"h10",name:"Sweep / vacuum area",emoji:"🧹"},
+        {id:"h11",name:"Put away own laundry",emoji:"👕"},
+        {id:"h12",name:"Brush teeth (PM)",emoji:"🦷"},
+        {id:"isha",name:"Isha Prayer",emoji:"🕌",p:true},
+        {id:"h13",name:"Read a book",emoji:"📖"},
+        {id:"h14",name:"Sleep by 9:30 PM",emoji:"😴"},
+      ]},
+    ]
+  },
+  kid12:{
+    name:"Syeda Inaya",avatar:"🐱",age:12,
+    label:"Inaya's Cat Kingdom",
+    color:"#E65100",colorBright:"#F57C00",colorLight:"#FFF8E1",colorMid:"#FFCC80",colorDark:"#BF360C",
+    gradient:"linear-gradient(135deg,#BF360C,#E65100,#FFA726)",
+    sections:[
+      {label:"🌅 MORNING",color:"#FF6F00",habits:[
+        {id:"fajr",name:"Fajr Prayer",emoji:"🕌",p:true},
+        {id:"h1",name:"Wake up on time",emoji:"⏰"},
+        {id:"h2",name:"Make bed + tidy room",emoji:"🛏️"},
+        {id:"h3",name:"Brush teeth",emoji:"🦷"},
+        {id:"h4",name:"Pack school bag",emoji:"🎒"},
+        {id:"h5",name:"Eat breakfast",emoji:"🥣"},
+      ]},
+      {label:"☀️ AFTERNOON",color:"#F57F17",habits:[
+        {id:"dhuhr",name:"Dhuhr Prayer",emoji:"🕌",p:true},
+        {id:"asr",name:"Asr Prayer",emoji:"🕌",p:true},
+        {id:"h6",name:"Handwriting (20 min)",emoji:"✏️"},
+        {id:"h7",name:"Self-study (60 min)",emoji:"📚"},
+        {id:"h8",name:"Homework",emoji:"📖"},
+      ]},
+      {label:"🌙 EVENING",color:"#4527A0",habits:[
+        {id:"maghrib",name:"Maghrib Prayer",emoji:"🕌",p:true},
+        {id:"h9",name:"Wash dishes",emoji:"🍽️"},
+        {id:"h10",name:"Do & fold laundry",emoji:"🧺"},
+        {id:"h11",name:"Clean bathroom area",emoji:"🚿"},
+        {id:"h12",name:"Change into pyjamas",emoji:"🌙"},
+        {id:"h13",name:"Brush teeth (PM)",emoji:"🦷"},
+        {id:"isha",name:"Isha Prayer",emoji:"🕌",p:true},
+        {id:"h14",name:"Read a book",emoji:"📖"},
+        {id:"h15",name:"Sleep by 10:00 PM",emoji:"😴"},
+      ]},
+    ]
+  }
+};
+
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+const now = new Date();
+let curView = 'home';
+let curKid = null;
+let curYear = now.getFullYear();
+let curMonth = now.getMonth();
+
+function getChecked(){try{return JSON.parse(localStorage.getItem('fht')||'{}')}catch{return{}}}
+function saveChecked(c){try{localStorage.setItem('fht',JSON.stringify(c))}catch{}}
+
+function hk(kid,y,m,d,h){return kid+'_'+y+'_'+m+'_'+d+'_'+h}
+
+function isChecked(kid,y,m,d,h){return !!getChecked()[hk(kid,y,m,d,h)]}
+
+function toggleCheck(kid,y,m,d,h){
+  const c=getChecked();
+  const k=hk(kid,y,m,d,h);
+  if(c[k]) delete c[k]; else c[k]=1;
+  saveChecked(c);
+}
+
+function getDays(y,m){return new Date(y,m+1,0).getDate()}
+
+function getAllHabits(kid){return KIDS[kid].sections.flatMap(s=>s.habits)}
+
+function dayPct(kid,y,m,d){
+  const habits=getAllHabits(kid);
+  const done=habits.filter(h=>isChecked(kid,y,m,d,h.id)).length;
+  return{done,total:habits.length,pct:habits.length?Math.round(done/habits.length*100):0};
+}
+
+function monthPct(kid,y,m){
+  const days=getDays(y,m);
+  const habits=getAllHabits(kid);
+  let done=0,total=0;
+  for(let d=1;d<=days;d++) habits.forEach(h=>{total++;if(isChecked(kid,y,m,d,h.id))done++;});
+  return{done,total,pct:total?Math.round(done/total*100):0};
+}
+
+function getStreak(kid){
+  const isNow=curYear===now.getFullYear()&&curMonth===now.getMonth();
+  const start=isNow?now.getDate():getDays(curYear,curMonth);
+  let s=0;
+  for(let d=start;d>=1;d--){
+    const{done,total}=dayPct(kid,curYear,curMonth,d);
+    if(done===total&&total>0)s++;else break;
+  }
+  return s;
+}
+
+// ═══════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goHome(){curView='home';showScreen('home')}
+
+function goParent(){curView='parent';curKid=null;renderParent();showScreen('parent')}
+
+function goKid(kid){curView='kid';curKid=kid;renderKid();showScreen('kid')}
+
+function changeMonth(dir){
+  if(dir===-1){if(curMonth===0){curYear--;curMonth=11;}else curMonth--;}
+  else{if(curMonth===11){curYear++;curMonth=0;}else curMonth++;}
+  if(curView==='parent')renderParent();
+  else if(curView==='kid')renderKid();
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER PARENT
+// ═══════════════════════════════════════════════
+function renderParent(){
+  document.getElementById('parent-month-label').textContent='📅 '+MONTHS[curMonth]+' '+curYear;
+  const avgs=Object.keys(KIDS).map(k=>monthPct(k,curYear,curMonth).pct);
+  const avg=Math.round(avgs.reduce((a,b)=>a+b,0)/avgs.length);
+  document.getElementById('fam-avg').textContent=avg+'%';
+  document.getElementById('fam-bar').style.width=avg+'%';
+
+  const container=document.getElementById('parent-cards');
+  const tilts=['rotate(-1deg)','rotate(0.8deg)','rotate(-0.5deg)'];
+  container.innerHTML='';
+  Object.keys(KIDS).forEach((kid,i)=>{
+    const K=KIDS[kid];
+    const{pct,done,total}=monthPct(kid,curYear,curMonth);
+    const s=getStreak(kid);
+    const isNow=curYear===now.getFullYear()&&curMonth===now.getMonth();
+    const td=isNow?dayPct(kid,curYear,curMonth,now.getDate()):null;
+    const card=document.createElement('div');
+    card.className='card';
+    card.style.transform=tilts[i];
+    card.onclick=()=>goKid(kid);
+    card.innerHTML=`
+      <div style="background:${K.gradient};padding:14px 16px;border-bottom:3px solid #222;display:flex;align-items:center;gap:12px">
+        <div class="avatar-circle" style="font-size:30px">${K.avatar}</div>
+        <div style="flex:1">
+          <div style="color:#fff;font-weight:900;font-size:15px;text-shadow:1px 1px 0 rgba(0,0,0,.2)">${K.name}</div>
+          <div style="color:rgba(255,255,255,.8);font-size:10px;font-weight:700">${K.label} · Age ${K.age}</div>
+        </div>
+        <div style="background:#fff;border:3px solid #222;border-radius:18px;padding:8px 12px;text-align:center;box-shadow:3px 3px 0 #222">
+          <div style="color:${K.colorDark};font-size:22px;font-weight:900;line-height:1">${pct}%</div>
+          <div style="color:#888;font-size:9px;font-weight:900;letter-spacing:1px">MONTH</div>
+        </div>
+      </div>
+      <div style="padding:14px 16px;background:${K.colorLight}">
+        <div class="progress-wrap" style="margin-bottom:12px">
+          <div class="progress-fill" style="background:${K.gradient};width:${pct}%"></div>
+        </div>
+        <div class="stat-row">
+          <div class="chip"><div class="chip-icon">🔥</div><div class="chip-val">${s}d</div><div class="chip-label">STREAK</div></div>
+          <div class="chip"><div class="chip-icon">✅</div><div class="chip-val">${done}/${total}</div><div class="chip-label">DONE</div></div>
+          ${td?`<div class="chip"><div class="chip-icon">📅</div><div class="chip-val">${td.done}/${td.total}</div><div class="chip-label">TODAY</div></div>`:''}
+          <div class="chip" style="background:${K.colorBright}"><div style="font-size:20px">${K.avatar}</div><div style="color:#fff;font-weight:900;font-size:10px">VIEW</div></div>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  RENDER KID
+// ═══════════════════════════════════════════════
+function renderKid(){
+  const K=KIDS[curKid];
+  const{pct,done,total}=monthPct(curKid,curYear,curMonth);
+  const s=getStreak(curKid);
+  const isNow=curYear===now.getFullYear()&&curMonth===now.getMonth();
+  const today=now.getDate();
+
+  // Header
+  document.getElementById('kid-header').innerHTML=`
+    <div style="background:${K.gradient};padding:16px 16px 20px;border-bottom:4px solid #222">
+      <button class="back-btn" style="color:${K.colorDark}" onclick="goHome()">← Home</button>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:60px;height:60px;border-radius:30px;background:#fff;border:4px solid #222;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:3px 3px 0 #222">${K.avatar}</div>
+        <div>
+          <div style="color:#fff;font-size:17px;font-weight:900;text-shadow:1px 1px 0 rgba(0,0,0,.2)">${K.name}</div>
+          <div style="color:rgba(255,255,255,.85);font-size:10px;font-weight:700">${K.label} · Age ${K.age}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px">
+        <div class="chip"><div class="chip-icon">📊</div><div class="chip-val" style="color:${K.colorDark}">${pct}%</div><div class="chip-label">MONTH</div></div>
+        <div class="chip"><div class="chip-icon">🔥</div><div class="chip-val" style="color:${K.colorDark}">${s}d</div><div class="chip-label">STREAK</div></div>
+        <div class="chip"><div class="chip-icon">🕌</div><div class="chip-val" style="color:${K.colorDark}">5/day</div><div class="chip-label">PRAYERS</div></div>
+        <div class="chip"><div class="chip-icon">✅</div><div class="chip-val" style="color:${K.colorDark}">${done}/${total}</div><div class="chip-label">DONE</div></div>
+      </div>
+    </div>`;
+
+  // Month label & progress
+  document.getElementById('kid-month-label').textContent=MONTHS[curMonth]+' '+curYear;
+  document.getElementById('kid-progress-fill').style.background=K.gradient;
+  document.getElementById('kid-progress-fill').style.width=pct+'%';
+  document.getElementById('kid-pct-label').style.color=K.colorDark;
+  document.getElementById('kid-pct-label').textContent='🎯 '+pct+'% DONE!';
+  document.getElementById('kid-prev').style.background=K.colorBright;
+  document.getElementById('kid-next').style.background=K.colorBright;
+
+  // Habits
+  const habitsEl=document.getElementById('kid-habits');
+  habitsEl.innerHTML='';
+  K.sections.forEach(sec=>{
+    const hdr=document.createElement('div');
+    hdr.className='section-hdr';
+    hdr.style.background=sec.color;
+    hdr.innerHTML=`<span class="section-label">${sec.label}</span>`;
+    habitsEl.appendChild(hdr);
+
+    sec.habits.forEach(habit=>{
+      const daysInMonth=getDays(curYear,curMonth);
+      // For daily view — just show today or let user pick a day
+      // We'll show each habit with today's checkbox + a simple day selector
+      for(let d=1;d<=daysInMonth;d++){
+        if(d!==today&&isNow) continue; // Only show today if current month
+        if(isNow&&d!==today) continue;
+      }
+      // Show habit row with toggle for today (or last day of month if past)
+      const targetDay=isNow?today:getDays(curYear,curMonth);
+      const done2=isChecked(curKid,curYear,curMonth,targetDay,habit.id);
+      const row=document.createElement('div');
+      row.className='habit-row'+(habit.p?' prayer-row':'');
+      row.innerHTML=`
+        ${habit.p?'<div class="prayer-bar"></div>':''}
+        <span class="habit-emoji">${habit.emoji}</span>
+        <span class="habit-name${habit.p?' prayer-name':''}">${habit.name}</span>
+        <div class="check-btn${habit.p?' prayer-check':''}${done2?' done':''}" 
+             style="background:${done2?(habit.p?'#7B1FA2':K.colorBright):'#fff'}"
+             id="chk_${habit.id}"
+             onclick="toggleHabit('${habit.id}',${targetDay},${habit.p||false})">
+          ${done2?'✓':''}
+        </div>`;
+      habitsEl.appendChild(row);
+    });
+  });
+
+  // Heatmap
+  const heatmap=document.getElementById('kid-heatmap');
+  heatmap.innerHTML='';
+  const days=getDays(curYear,curMonth);
+  for(let d=1;d<=days;d++){
+    const{done:dd,total:dt,pct:p2}=dayPct(curKid,curYear,curMonth,d);
+    const isTd=isNow&&d===today;
+    const isFut=isNow&&d>today;
+    const bg=isFut?'#F5F5F5':p2===100?K.colorBright:p2>0?K.colorMid:'#EEE';
+    const brd=isTd?'3px solid #222':p2>0?'2px solid #222':'2px solid #E0E0E0';
+    const bubble=document.createElement('div');
+    bubble.className='day-bubble'+(isTd?' today':'')+(p2===100?' full':'')+(p2>0&&p2<100?' partial':'');
+    bubble.style.background=bg;
+    bubble.style.border=brd;
+    if(p2===100) bubble.style.boxShadow='2px 2px 0 #222';
+    bubble.innerHTML=`<div class="day-num${p2===100?' white':''}">${d}</div>${!isFut&&p2>0?`<div class="day-pct${p2===100?' white':''}">${p2}%</div>`:''}`;
+    heatmap.appendChild(bubble);
+  }
+}
+
+function toggleHabit(habitId, day, isPrayer){
+  const K=KIDS[curKid];
+  toggleCheck(curKid,curYear,curMonth,day,habitId);
+  const done2=isChecked(curKid,curYear,curMonth,day,habitId);
+  const btn=document.getElementById('chk_'+habitId);
+  if(btn){
+    btn.textContent=done2?'✓':'';
+    btn.className='check-btn'+(isPrayer?' prayer-check':'')+(done2?' done':'');
+    btn.style.background=done2?(isPrayer?'#7B1FA2':K.colorBright):'#fff';
+  }
+  // Update progress
+  const{pct,done,total}=monthPct(curKid,curYear,curMonth);
+  document.getElementById('kid-progress-fill').style.width=pct+'%';
+  document.getElementById('kid-pct-label').textContent='🎯 '+pct+'% DONE!';
+  // Refresh heatmap
+  const isNow=curYear===now.getFullYear()&&curMonth===now.getMonth();
+  const today=now.getDate();
+  const{pct:dp}=dayPct(curKid,curYear,curMonth,day);
+  // update today bubble
+  const bubbles=document.querySelectorAll('.day-bubble');
+  if(bubbles[day-1]){
+    const K2=KIDS[curKid];
+    bubbles[day-1].style.background=dp===100?K2.colorBright:dp>0?K2.colorMid:'#EEE';
+    bubbles[day-1].style.border=isNow&&day===today?'3px solid #222':dp>0?'2px solid #222':'2px solid #E0E0E0';
+    bubbles[day-1].innerHTML=`<div class="day-num${dp===100?' white':''}">${day}</div>${dp>0?`<div class="day-pct${dp===100?' white':''}">${dp}%</div>`:''}`;
+  }
+}
+
+// Init
+renderParent();
+</script>
+
+</body>
+</html>
