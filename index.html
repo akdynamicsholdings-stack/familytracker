@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Family Tracker"/>
+<title>Family Tracker 🌿</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#B8F2E6;min-height:100vh}
+button{font-family:Arial,sans-serif;cursor:pointer;border:none;outline:none;background:none}
+.screen{display:none;min-height:100vh;padding-bottom:40px}
+.screen.active{display:block}
+
+.home-hero{background:linear-gradient(160deg,#4AC7A8 0%,#B8F2E6 100%);
+border-radius:0 0 40px 40px;padding:40px 24px 36px;text-align:center;
+box-shadow:0 8px 32px rgba(74,199,168,0.2)}
+.home-title{font-family:‘Arial Black’,Arial;font-size:28px;color:#fff;
+text-shadow:0 2px 10px rgba(0,0,0,0.1);margin-top:8px}
+.home-sub{color:rgba(255,255,255,0.88);font-size:13px;font-weight:700;margin-top:4px}
+
+.home-card{background:#fff;border-radius:22px;padding:16px 18px;
+display:flex;align-items:center;gap:14px;
+box-shadow:0 4px 20px rgba(0,0,0,0.07);
+margin:14px 16px 0;cursor:pointer;transition:transform .15s}
+.home-card:active{transform:scale(0.97)}
+.mascot-wrap{width:76px;height:76px;border-radius:38px;
+display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.kid-name{font-family:‘Arial Black’,Arial;font-size:16px;font-weight:900}
+.kid-sub{font-size:11px;font-weight:700;margin-top:2px}
+.chips{display:flex;gap:6px;margin-top:9px}
+.chip{flex:1;border-radius:12px;padding:7px 4px;text-align:center;border:1.5px solid}
+.chip-ico{font-size:15px}.chip-val{font-size:13px;font-weight:900;line-height:1.2}
+.chip-lbl{font-size:8px;font-weight:700;opacity:.6;letter-spacing:.5px}
+
+.sec-hdr{display:flex;align-items:center;padding:9px 16px;
+font-size:11px;font-weight:900;letter-spacing:1.5px}
+.habit-row{display:flex;align-items:center;gap:10px;padding:12px 16px;
+border-bottom:1px solid rgba(0,0,0,0.04);background:#fff}
+.habit-row.prayer{background:#FFFDF5;border-bottom:1px solid rgba(255,224,138,0.35)}
+.prayer-dot{width:4px;border-radius:2px;flex-shrink:0;align-self:stretch;background:#FFE08A}
+.habit-ico{font-size:20px;flex-shrink:0}
+.habit-name{font-size:13px;font-weight:700;color:#444;flex:1;line-height:1.3}
+.prayer .habit-name{color:#8B6914}
+.chk{width:36px;height:36px;border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+font-size:18px;color:#fff;font-weight:900;
+border:2px solid #DDD;background:#F5F5F5;
+flex-shrink:0;transition:all .15s}
+.chk.done{border:none;box-shadow:0 3px 12px rgba(0,0,0,0.15)}
+.chk.pdone{background:#FFE08A;color:#8B6914;border:none}
+
+.prog-wrap{background:#EDEDED;border-radius:8px;height:8px;overflow:hidden;flex:1}
+.prog-fill{height:100%;border-radius:8px;transition:width .5s}
+
+.page-hdr{border-radius:0 0 32px 32px;padding:20px 20px 24px;
+box-shadow:0 6px 24px rgba(0,0,0,0.08)}
+.back-btn{display:inline-flex;align-items:center;font-size:13px;
+font-weight:700;border-radius:20px;padding:6px 14px;margin-bottom:14px;
+box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.month-nav{background:#fff;border-bottom:1px solid rgba(0,0,0,0.05);
+padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.month-lbl{font-family:‘Arial Black’,Arial;font-size:15px;color:#333}
+.nav-btn{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;
+justify-content:center;font-size:18px;font-weight:900;color:#fff;
+box-shadow:0 2px 8px rgba(0,0,0,0.12)}
+
+.bubble{width:42px;height:42px;border-radius:12px;
+display:flex;flex-direction:column;align-items:center;justify-content:center;
+margin:3px;flex-shrink:0;cursor:pointer}
+.bubble-num{font-size:12px;font-weight:900}
+.bubble-pct{font-size:8px;font-weight:700}
+
+.fam-card{background:linear-gradient(135deg,#4AC7A8,#2AB090);
+border-radius:22px;padding:18px 20px;display:flex;align-items:center;gap:14px;
+box-shadow:0 6px 24px rgba(74,199,168,0.3);margin:16px 16px 12px}
+.prayer-band{background:#fff;border-radius:16px;padding:11px 16px;
+display:flex;align-items:center;gap:10px;
+box-shadow:0 2px 12px rgba(0,0,0,0.05);margin:0 16px 12px;
+border-left:4px solid #FFE08A}
+.pkcard{background:#fff;border-radius:18px;padding:14px 16px;
+box-shadow:0 3px 14px rgba(0,0,0,0.06);margin:0 16px 12px;
+cursor:pointer;transition:transform .15s}
+.pkcard:active{transform:scale(0.98)}
+
+.tab-bar{display:flex;background:#fff;border-bottom:2px solid #F0F0F0}
+.tab-btn{flex:1;padding:11px 4px;font-size:12px;font-weight:900;color:#BBB;
+border-bottom:3px solid transparent;transition:all .2s;cursor:pointer;text-align:center}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+.upload-card{border-radius:16px;padding:16px 12px;text-align:center;cursor:pointer;
+border:2px dashed;position:relative;overflow:hidden}
+.upload-card input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:16px;width:100%;height:100%}
+.photo-preview{width:100%;height:110px;object-fit:cover;border-radius:10px;margin-top:8px}
+
+.gallery-item{border-radius:14px;overflow:hidden;
+box-shadow:0 3px 12px rgba(0,0,0,0.1);cursor:pointer}
+.gallery-img{width:100%;height:120px;object-fit:cover;display:block}
+.gallery-caption{padding:8px 10px;background:#fff}
+
+.photo-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);
+z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.photo-modal.open{display:flex}
+.modal-img{max-width:100%;max-height:78vh;border-radius:12px;object-fit:contain}
+.modal-close{position:absolute;top:20px;right:20px;color:#fff;font-size:24px;
+background:rgba(255,255,255,0.15);width:44px;height:44px;border-radius:22px;
+display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-info{color:rgba(255,255,255,0.85);margin-top:12px;text-align:center;
+font-size:12px;font-weight:700;max-width:300px}
+
+.sync-bar{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;
+padding:7px 16px;background:rgba(0,0,0,0.04)}
+.sync-dot{width:8px;height:8px;border-radius:4px;background:#FFB347;flex-shrink:0}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+background:#333;color:#fff;padding:10px 20px;border-radius:20px;
+font-size:13px;font-weight:700;z-index:9998;opacity:0;transition:opacity .3s;
+pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+</style>
+
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+
+<div id="s-home" class="screen active">
+  <div class="home-hero">
+    <div style="font-size:48px">🏡</div>
+    <div class="home-title">Family Tracker</div>
+    <div class="home-sub">!السلام عليكم Who are you today? 👋</div>
+  </div>
+  <div class="sync-bar">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span id="sync-text">Connecting to database...</span>
+  </div>
+
+  <div class="home-card" style="border-left:5px solid #4AC7A8" onclick="goParent()">
+    <div class="mascot-wrap" style="background:#E8F8F5;font-size:44px">👨‍👩‍👧‍👦</div>
+    <div style="flex:1">
+      <div class="kid-name" style="color:#2D8B74">I'm the Parent</div>
+      <div class="kid-sub" style="color:#4AC7A8">Dashboard · All kids + Photos</div>
+      <div style="font-size:10px;color:#999;font-weight:600;margin-top:2px">Live sync · Remote monitoring</div>
+    </div>
+    <div style="font-size:22px;opacity:.3">›</div>
+  </div>
+
+  <!-- Zayan -->
+
+  <div class="home-card" style="border-left:5px solid #4AC7A8" onclick="goKid('kid7')">
+    <div class="mascot-wrap" style="background:#E8F8F5">
+      <svg viewBox="0 0 76 76" width="76" height="76">
+        <ellipse cx="40" cy="50" rx="19" ry="17" fill="#F4A261"/>
+        <ellipse cx="42" cy="54" rx="11" ry="10" fill="#FFD59E"/>
+        <path d="M23 56 Q10 60 8 68 Q17 62 25 60Z" fill="#F4A261"/>
+        <polygon points="31,36 28,25 34,34" fill="#4AC7A8"/><polygon points="37,31 35,21 41,30" fill="#4AC7A8"/>
+        <polygon points="43,32 42,22 47,31" fill="#4AC7A8"/><polygon points="49,36 49,27 53,35" fill="#4AC7A8"/>
+        <ellipse cx="52" cy="31" rx="17" ry="15" fill="#F4A261"/>
+        <circle cx="57" cy="27" r="5.5" fill="#fff"/><circle cx="58" cy="27" r="3.5" fill="#1A1A3A"/>
+        <circle cx="59" cy="26" r="1.2" fill="#fff"/><circle cx="64" cy="31" r="1.3" fill="#D4804A"/>
+        <path d="M57 36 Q63 39 67 36" stroke="#1A1A3A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <rect x="59" y="36" width="3" height="3.5" rx="1" fill="#fff"/>
+        <path d="M40 50 Q31 45 29 52" stroke="#F4A261" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M35 63 Q33 70 31 73" stroke="#F4A261" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M46 64 Q46 71 46 74" stroke="#F4A261" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <ellipse cx="31" cy="73" rx="5.5" ry="2.5" fill="#D4804A"/>
+        <ellipse cx="46" cy="74" rx="5.5" ry="2.5" fill="#D4804A"/>
+        <circle cx="14" cy="38" r="3" fill="#FF8C94" opacity=".6"/>
+        <circle cx="10" cy="38" r="2.2" fill="#FF8C94" opacity=".45"/>
+        <circle cx="14" cy="34" r="2.2" fill="#FF8C94" opacity=".5"/>
+        <circle cx="14" cy="42" r="2.2" fill="#FF8C94" opacity=".5"/>
+        <circle cx="14" cy="38" r="1.8" fill="#FFE08A"/>
+      </svg>
+    </div>
+    <div style="flex:1">
+      <div class="kid-name" style="color:#2D8B74">Syed Zayan Ahmed</div>
+      <div class="kid-sub" style="color:#4AC7A8">Zayan's Dino Zone · Age 7</div>
+      <div class="chips">
+        <div class="chip" style="background:#E8F8F5;border-color:#C0EDE3"><div class="chip-ico">🕌</div><div class="chip-val" style="color:#4AC7A8" id="h7p">-</div><div class="chip-lbl">PRAYERS</div></div>
+        <div class="chip" style="background:#E8F8F5;border-color:#C0EDE3"><div class="chip-ico">✅</div><div class="chip-val" style="color:#4AC7A8" id="h7t">-</div><div class="chip-lbl">TODAY</div></div>
+        <div class="chip" style="background:#E8F8F5;border-color:#C0EDE3"><div class="chip-ico">🔥</div><div class="chip-val" style="color:#4AC7A8" id="h7s">-</div><div class="chip-lbl">STREAK</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inara (cat) -->
+
+  <div class="home-card" style="border-left:5px solid #FF8C94" onclick="goKid('kid10')">
+    <div class="mascot-wrap" style="background:#FFF0F1">
+      <svg viewBox="0 0 76 76" width="76" height="76">
+        <ellipse cx="38" cy="54" rx="21" ry="17" fill="#FFB3BA"/>
+        <ellipse cx="38" cy="57" rx="13" ry="11" fill="#FFE8EA"/>
+        <path d="M59 62 Q74 56 72 45 Q63 52 57 60Z" fill="#FFB3BA"/>
+        <circle cx="38" cy="28" r="21" fill="#FFB3BA"/>
+        <polygon points="20,17 13,4 27,13" fill="#FFB3BA"/><polygon points="56,17 63,4 49,13" fill="#FFB3BA"/>
+        <polygon points="20,16 15,7 25,12" fill="#FF8C94"/><polygon points="56,16 61,7 51,12" fill="#FF8C94"/>
+        <ellipse cx="29" cy="26" rx="5.5" ry="6.5" fill="#fff"/><ellipse cx="47" cy="26" rx="5.5" ry="6.5" fill="#fff"/>
+        <circle cx="29" cy="27" r="4" fill="#1A1A3A"/><circle cx="47" cy="27" r="4" fill="#1A1A3A"/>
+        <circle cx="30" cy="25.5" r="1.5" fill="#fff"/><circle cx="48" cy="25.5" r="1.5" fill="#fff"/>
+        <ellipse cx="38" cy="34" rx="2.8" ry="2.2" fill="#FF8C94"/>
+        <path d="M34 36 Q38 40 42 36" stroke="#FF8C94" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <line x1="14" y1="31" x2="30" y2="33" stroke="#fff" stroke-width="1.3" opacity=".65"/>
+        <line x1="62" y1="31" x2="46" y2="33" stroke="#fff" stroke-width="1.3" opacity=".65"/>
+        <circle cx="22" cy="35" r="4.5" fill="#FF8C94" opacity=".22"/>
+        <circle cx="54" cy="35" r="4.5" fill="#FF8C94" opacity=".22"/>
+        <ellipse cx="23" cy="67" rx="7.5" ry="5.5" fill="#FFB3BA"/>
+        <ellipse cx="53" cy="67" rx="7.5" ry="5.5" fill="#FFB3BA"/>
+        <polygon points="33,14 27,10 27,18" fill="#FF6B7A"/>
+        <polygon points="43,14 49,10 49,18" fill="#FF6B7A"/>
+        <circle cx="38" cy="14" r="3.5" fill="#FF8C94"/>
+      </svg>
+    </div>
+    <div style="flex:1">
+      <div class="kid-name" style="color:#C0525A">Syeda Inara</div>
+      <div class="kid-sub" style="color:#FF8C94">Inara's Cat Corner · Age 10</div>
+      <div class="chips">
+        <div class="chip" style="background:#FFF0F1;border-color:#FFD6D9"><div class="chip-ico">🕌</div><div class="chip-val" style="color:#FF8C94" id="h10p">-</div><div class="chip-lbl">PRAYERS</div></div>
+        <div class="chip" style="background:#FFF0F1;border-color:#FFD6D9"><div class="chip-ico">✅</div><div class="chip-val" style="color:#FF8C94" id="h10t">-</div><div class="chip-lbl">TODAY</div></div>
+        <div class="chip" style="background:#FFF0F1;border-color:#FFD6D9"><div class="chip-ico">🔥</div><div class="chip-val" style="color:#FF8C94" id="h10s">-</div><div class="chip-lbl">STREAK</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inaya (dog) -->
+
+  <div class="home-card" style="border-left:5px solid #D4963A" onclick="goKid('kid12')">
+    <div class="mascot-wrap" style="background:#FFF8EC">
+      <svg viewBox="0 0 76 76" width="76" height="76">
+        <ellipse cx="38" cy="53" rx="21" ry="16" fill="#FFD59E"/>
+        <ellipse cx="38" cy="56" rx="13" ry="10" fill="#FFF3DC"/>
+        <path d="M59 50 Q72 42 70 32 Q63 43 57 50Z" fill="#FFD59E"/>
+        <ellipse cx="18" cy="25" rx="9" ry="14" fill="#F4A261" transform="rotate(-15,18,25)"/>
+        <ellipse cx="58" cy="25" rx="9" ry="14" fill="#F4A261" transform="rotate(15,58,25)"/>
+        <circle cx="38" cy="27" r="21" fill="#FFD59E"/>
+        <ellipse cx="38" cy="35" rx="12" ry="9" fill="#FFF3DC"/>
+        <ellipse cx="38" cy="31" rx="4.5" ry="3.5" fill="#1A1A3A"/>
+        <circle cx="27" cy="23" r="6" fill="#fff"/><circle cx="49" cy="23" r="6" fill="#fff"/>
+        <circle cx="27" cy="24" r="4" fill="#1A1A3A"/><circle cx="49" cy="24" r="4" fill="#1A1A3A"/>
+        <circle cx="28" cy="22.5" r="1.5" fill="#fff"/><circle cx="50" cy="22.5" r="1.5" fill="#fff"/>
+        <path d="M31 38 Q38 43 45 38" stroke="#F4A261" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <ellipse cx="38" cy="42" rx="5.5" ry="4.5" fill="#FF8C94"/>
+        <line x1="38" y1="38.5" x2="38" y2="46" stroke="#FF6B7A" stroke-width="1.2"/>
+        <circle cx="20" cy="31" r="5" fill="#FF8C94" opacity=".18"/>
+        <ellipse cx="23" cy="65" rx="7.5" ry="5.5" fill="#FFD59E"/>
+        <ellipse cx="53" cy="65" rx="7.5" ry="5.5" fill="#FFD59E"/>
+        <rect x="25" y="44" width="26" height="5.5" rx="2.8" fill="#4AC7A8"/>
+        <circle cx="38" cy="46.8" r="3" fill="#FFE08A"/>
+      </svg>
+    </div>
+    <div style="flex:1">
+      <div class="kid-name" style="color:#9A6B00">Syeda Inaya</div>
+      <div class="kid-sub" style="color:#D4963A">Inaya's Dog Den · Age 12</div>
+      <div class="chips">
+        <div class="chip" style="background:#FFF8EC;border-color:#FFE9A0"><div class="chip-ico">🕌</div><div class="chip-val" style="color:#D4963A" id="h12p">-</div><div class="chip-lbl">PRAYERS</div></div>
+        <div class="chip" style="background:#FFF8EC;border-color:#FFE9A0"><div class="chip-ico">✅</div><div class="chip-val" style="color:#D4963A" id="h12t">-</div><div class="chip-lbl">TODAY</div></div>
+        <div class="chip" style="background:#FFF8EC;border-color:#FFE9A0"><div class="chip-ico">🔥</div><div class="chip-val" style="color:#D4963A" id="h12s">-</div><div class="chip-lbl">STREAK</div></div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:10px;color:#888;font-weight:700;margin-top:18px;padding:0 16px">☁️ Firebase live sync · ImgBB photo uploads</div>
+</div>
+
+<!-- ══ PARENT ══ -->
+
+<div id="s-parent" class="screen">
+  <div class="page-hdr" style="background:linear-gradient(160deg,#4AC7A8,#B8F2E6)">
+    <button class="back-btn" style="background:rgba(255,255,255,0.85);color:#2D8B74" onclick="goHome()">← Home</button>
+    <div style="font-family:'Arial Black',Arial;font-size:22px;color:#fff">Parent Dashboard 👀</div>
+    <div style="color:rgba(255,255,255,0.85);font-size:12px;font-weight:700;margin-top:4px">Live · All 3 kids</div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab-btn" id="ptab-habits-btn" onclick="pTab('habits')" style="color:#4AC7A8;border-bottom-color:#4AC7A8">📊 Habits</div>
+    <div class="tab-btn" id="ptab-photos-btn" onclick="pTab('photos')">📸 Photos</div>
+  </div>
+  <div id="ptab-habits" class="tab-pane active">
+    <div class="month-nav">
+      <button class="nav-btn" style="background:#4AC7A8" onclick="changeMonth(-1)">‹</button>
+      <div class="month-lbl" id="p-mlbl"></div>
+      <button class="nav-btn" style="background:#4AC7A8" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="fam-card">
+      <div style="font-size:48px;line-height:1">🌿</div>
+      <div style="flex:1">
+        <div style="color:rgba(255,255,255,.85);font-size:10px;font-weight:700;letter-spacing:2px">FAMILY AVERAGE</div>
+        <div id="p-avg" style="color:#fff;font-size:38px;font-family:'Arial Black',Arial">—</div>
+        <div style="background:rgba(255,255,255,.25);border-radius:6px;height:7px;margin-top:8px;overflow:hidden">
+          <div id="p-avgbar" style="height:100%;background:#fff;border-radius:6px;transition:width .5s;width:0%"></div>
+        </div>
+      </div>
+      <div style="font-size:32px">🎉</div>
+    </div>
+    <div class="prayer-band">
+      <div style="font-size:26px">🕌</div>
+      <div>
+        <div style="font-weight:900;color:#8B6914;font-size:12px">5 Daily Prayers Tracked</div>
+        <div style="font-size:10px;color:#B8942A;font-weight:700">Fajr · Dhuhr · Asr · Maghrib · Isha</div>
+      </div>
+    </div>
+    <div id="p-cards"></div>
+  </div>
+  <div id="ptab-photos" class="tab-pane" style="padding-bottom:20px">
+    <div style="padding:14px 16px 8px;display:flex;gap:8px;overflow-x:auto">
+      <button onclick="pf('all')" id="pfb-all" style="background:#4AC7A8;color:#fff;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:900;white-space:nowrap">All</button>
+      <button onclick="pf('kid7')" id="pfb-kid7" style="background:#E8F8F5;color:#2D8B74;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:900;white-space:nowrap">🦕 Zayan</button>
+      <button onclick="pf('kid10')" id="pfb-kid10" style="background:#FFF0F1;color:#C0525A;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:900;white-space:nowrap">🐱 Inara</button>
+      <button onclick="pf('kid12')" id="pfb-kid12" style="background:#FFF8EC;color:#9A6B00;border-radius:20px;padding:6px 14px;font-size:11px;font-weight:900;white-space:nowrap">🐶 Inaya</button>
+    </div>
+    <div id="p-gallery" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px"></div>
+  </div>
+</div>
+
+<!-- ══ KID ══ -->
+
+<div id="s-kid" class="screen">
+  <div id="k-hdr"></div>
+  <div class="month-nav">
+    <button id="k-prev" class="nav-btn" onclick="changeMonth(-1)">‹</button>
+    <div id="k-mlbl" class="month-lbl"></div>
+    <button id="k-next" class="nav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+  <div style="background:#fff;padding:10px 16px;border-bottom:1px solid rgba(0,0,0,0.05)">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="prog-wrap"><div id="k-pfill" class="prog-fill"></div></div>
+      <div id="k-ppct" style="font-family:'Arial Black',Arial;font-size:15px;min-width:48px;text-align:right">0%</div>
+    </div>
+    <div id="k-pdone" style="font-size:10px;color:#AAA;font-weight:700;margin-top:4px;text-align:center">Loading...</div>
+  </div>
+  <div class="tab-bar">
+    <div class="tab-btn" id="ktab-h-btn" onclick="kTab('h')" style="color:#333;border-bottom-color:#333">✅ Habits</div>
+    <div class="tab-btn" id="ktab-u-btn" onclick="kTab('u')">📸 Upload</div>
+    <div class="tab-btn" id="ktab-m-btn" onclick="kTab('m')">📅 Month</div>
+  </div>
+  <div id="ktab-h" class="tab-pane active">
+    <div id="k-habits" style="background:#FAFFFE"></div>
+  </div>
+  <div id="ktab-u" class="tab-pane">
+    <div style="background:#fff;padding:14px 16px;border-bottom:1px solid #F0F0F0">
+      <div style="font-family:'Arial Black',Arial;font-size:13px;color:#555;margin-bottom:4px">📤 Upload Today's Work</div>
+      <div id="u-daylbl" style="font-size:11px;color:#AAA;font-weight:700;margin-bottom:12px"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="upload-card" style="background:#E8F8F5;border-color:#4AC7A8">
+          <input type="file" accept="image/*" capture="environment" onchange="doUpload(event,'handwriting')"/>
+          <div style="font-size:30px">✏️</div>
+          <div style="font-size:12px;font-weight:700;color:#2D8B74;margin-top:4px">Handwriting</div>
+          <div style="font-size:10px;font-weight:600;color:#4AC7A8;margin-top:2px" id="u-hw-status">Tap to upload</div>
+          <img id="u-hw-prev" style="display:none;width:100%;height:90px;object-fit:cover;border-radius:8px;margin-top:8px" src="" alt=""/>
+        </div>
+        <div class="upload-card" style="background:#FFF0F1;border-color:#FF8C94">
+          <input type="file" accept="image/*" capture="environment" onchange="doUpload(event,'homework')"/>
+          <div style="font-size:30px">📚</div>
+          <div style="font-size:12px;font-weight:700;color:#C0525A;margin-top:4px">Homework</div>
+          <div style="font-size:10px;font-weight:600;color:#FF8C94;margin-top:2px" id="u-hmk-status">Tap to upload</div>
+          <img id="u-hmk-prev" style="display:none;width:100%;height:90px;object-fit:cover;border-radius:8px;margin-top:8px" src="" alt=""/>
+        </div>
+      </div>
+    </div>
+    <div style="padding:14px 16px">
+      <div style="font-family:'Arial Black',Arial;font-size:13px;color:#555;margin-bottom:10px">Today's uploads</div>
+      <div id="u-today" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="color:#AAA;font-size:12px;font-weight:700;grid-column:1/-1;text-align:center;padding:20px">No uploads yet</div>
+      </div>
+    </div>
+  </div>
+  <div id="ktab-m" class="tab-pane">
+    <div style="padding:14px 16px;background:#FAFFFE">
+      <div style="font-family:'Arial Black',Arial;font-size:13px;color:#555;margin-bottom:10px">📊 Month View · Tap any day</div>
+      <div id="k-hmap" style="display:flex;flex-wrap:wrap"></div>
+      <div id="k-legend" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+
+<div class="photo-modal" id="photo-modal" onclick="closeModal()">
+  <div class="modal-close">✕</div>
+  <img class="modal-img" id="modal-img" src="" alt=""/>
+  <div class="modal-info" id="modal-info"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ FIREBASE REST CONFIG ══
+const FB_URL = "https://familytracker-53b76-default-rtdb.firebaseio.com";
+const IMGBB  = "19002447ec6d1475aedb85643cccfe16";
+
+// ══ DATA ══
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const PI=new Set(["fajr","dhuhr","asr","maghrib","isha"]);
+const KIDS={
+  kid7:{name:"Syed Zayan Ahmed",label:"Zayan's Dino Zone",age:7,m:"🦕",
+    color:"#4AC7A8",cd:"#2D8B74",cl:"#E8F8F5",cm:"#A8E6D9",cp:"#C0EDE3",
+    grad:"linear-gradient(160deg,#4AC7A8,#B8F2E6)",
+    sections:[
+      {label:"🌅 MORNING",c:"#4AC7A8",h:[
+        {id:"fajr",n:"Fajr Prayer",e:"🕌",p:1},{id:"h1",n:"Wake up on time",e:"⏰"},
+        {id:"h2",n:"Make my bed",e:"🛏️"},{id:"h3",n:"Brush teeth",e:"🦷"},
+        {id:"h4",n:"Get dressed",e:"👕"},{id:"h5",n:"Brush hair",e:"💆"},{id:"h6",n:"Eat breakfast",e:"🥣"}]},
+      {label:"☀️ AFTERNOON",c:"#FF8C94",h:[
+        {id:"dhuhr",n:"Dhuhr Prayer",e:"🕌",p:1},{id:"asr",n:"Asr Prayer",e:"🕌",p:1},
+        {id:"h7",n:"Handwriting (15 min)",e:"✏️"},{id:"h8",n:"Reading / Study",e:"📚"},{id:"h9",n:"Pick up toys",e:"🧸"}]},
+      {label:"🌙 EVENING",c:"#9B8EC4",h:[
+        {id:"maghrib",n:"Maghrib Prayer",e:"🕌",p:1},
+        {id:"h10",n:"Set & clear table",e:"🍽️"},{id:"h11",n:"Clothes in hamper",e:"👕"},
+        {id:"h12",n:"Brush teeth (PM)",e:"🦷"},{id:"isha",n:"Isha Prayer",e:"🕌",p:1},
+        {id:"h13",n:"Read a book",e:"📖"},{id:"h14",n:"Sleep by 9:00 PM",e:"😴"}]}]},
+  kid10:{name:"Syeda Inara",label:"Inara's Cat Corner",age:10,m:"🐱",
+    color:"#FF8C94",cd:"#C0525A",cl:"#FFF0F1",cm:"#FFB3BA",cp:"#FFD6D9",
+    grad:"linear-gradient(160deg,#FF8C94,#FFE8EA)",
+    sections:[
+      {label:"🌅 MORNING",c:"#FF8C94",h:[
+        {id:"fajr",n:"Fajr Prayer",e:"🕌",p:1},{id:"h1",n:"Wake up on time",e:"⏰"},
+        {id:"h2",n:"Make bed + tidy room",e:"🛏️"},{id:"h3",n:"Brush teeth",e:"🦷"},
+        {id:"h4",n:"Pack school bag",e:"🎒"},{id:"h5",n:"Eat breakfast",e:"🥣"}]},
+      {label:"☀️ AFTERNOON",c:"#4AC7A8",h:[
+        {id:"dhuhr",n:"Dhuhr Prayer",e:"🕌",p:1},{id:"asr",n:"Asr Prayer",e:"🕌",p:1},
+        {id:"h6",n:"Handwriting (20 min)",e:"✏️"},{id:"h7",n:"Self-study (45 min)",e:"📚"},{id:"h8",n:"Homework",e:"📖"}]},
+      {label:"🌙 EVENING",c:"#9B8EC4",h:[
+        {id:"maghrib",n:"Maghrib Prayer",e:"🕌",p:1},{id:"h9",n:"Help with dinner",e:"🍳"},
+        {id:"h10",n:"Sweep / vacuum",e:"🧹"},{id:"h11",n:"Put away laundry",e:"👕"},
+        {id:"h12",n:"Brush teeth (PM)",e:"🦷"},{id:"isha",n:"Isha Prayer",e:"🕌",p:1},
+        {id:"h13",n:"Read a book",e:"📖"},{id:"h14",n:"Sleep by 9:30 PM",e:"😴"}]}]},
+  kid12:{name:"Syeda Inaya",label:"Inaya's Dog Den",age:12,m:"🐶",
+    color:"#D4963A",cd:"#9A6B00",cl:"#FFF8EC",cm:"#FFCC80",cp:"#FFE9A0",
+    grad:"linear-gradient(160deg,#FFE08A,#FFF8EC)",
+    sections:[
+      {label:"🌅 MORNING",c:"#D4963A",h:[
+        {id:"fajr",n:"Fajr Prayer",e:"🕌",p:1},{id:"h1",n:"Wake up on time",e:"⏰"},
+        {id:"h2",n:"Make bed + tidy room",e:"🛏️"},{id:"h3",n:"Brush teeth",e:"🦷"},
+        {id:"h4",n:"Pack school bag",e:"🎒"},{id:"h5",n:"Eat breakfast",e:"🥣"}]},
+      {label:"☀️ AFTERNOON",c:"#4AC7A8",h:[
+        {id:"dhuhr",n:"Dhuhr Prayer",e:"🕌",p:1},{id:"asr",n:"Asr Prayer",e:"🕌",p:1},
+        {id:"h6",n:"Handwriting (20 min)",e:"✏️"},{id:"h7",n:"Self-study (60 min)",e:"📚"},{id:"h8",n:"Homework",e:"📖"}]},
+      {label:"🌙 EVENING",c:"#9B8EC4",h:[
+        {id:"maghrib",n:"Maghrib Prayer",e:"🕌",p:1},{id:"h9",n:"Wash dishes",e:"🍽️"},
+        {id:"h10",n:"Do & fold laundry",e:"🧺"},{id:"h11",n:"Clean bathroom",e:"🚿"},
+        {id:"h12",n:"Change into pyjamas",e:"🌙"},{id:"h13",n:"Brush teeth (PM)",e:"🦷"},
+        {id:"isha",n:"Isha Prayer",e:"🕌",p:1},{id:"h14",n:"Read a book",e:"📖"},
+        {id:"h15",n:"Sleep by 10:00 PM",e:"😴"}]}]}
+};
+
+// ══ STATE ══
+const now=new Date();
+let VIEW='home',KID=null,CY=now.getFullYear(),CM=now.getMonth(),selDay=now.getDate();
+let cache={checks:{},photos:{}};
+let photoFilter='all';
+let pollTimer=null;
+
+// ══ FIREBASE REST ══
+async function fbGet(path){
+  try{
+    const r=await fetch(`${FB_URL}/${path}.json`);
+    if(!r.ok)return null;
+    return await r.json();
+  }catch{return null}
+}
+async function fbSet(path,val){
+  try{
+    await fetch(`${FB_URL}/${path}.json`,{
+      method:'PUT',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(val)
+    });
+  }catch(e){console.warn('FB set error',e)}
+}
+async function fbDelete(path){
+  try{await fetch(`${FB_URL}/${path}.json`,{method:'DELETE'})}catch{}
+}
+
+async function syncAll(){
+  const [checks,photos]=await Promise.all([fbGet('checks'),fbGet('photos')]);
+  const changed=JSON.stringify(checks)!==JSON.stringify(cache.checks)||
+    JSON.stringify(photos)!==JSON.stringify(cache.photos);
+  cache.checks=checks||{};
+  cache.photos=photos||{};
+  if(changed){
+    refreshChips();
+    if(VIEW==='parent'){renderParentHabits();renderGallery();}
+    if(VIEW==='kid'){renderHabits();updateProg();}
+  }
+  // Status
+  document.getElementById('sync-dot').style.background='#4AC7A8';
+  document.getElementById('sync-text').textContent='✅ Firebase connected · Live sync active';
+}
+
+// Poll every 8 seconds for live updates
+function startPoll(){
+  syncAll();
+  pollTimer=setInterval(syncAll,8000);
+}
+startPoll();
+
+// ══ DATA HELPERS ══
+function allH(kid){return KIDS[kid].sections.flatMap(s=>s.h)}
+function getDays(y,m){return new Date(y,m+1,0).getDate()}
+function isFut(y,m,d){
+  return y>now.getFullYear()||(y===now.getFullYear()&&m>now.getMonth())||
+    (y===now.getFullYear()&&m===now.getMonth()&&d>now.getDate());
+}
+function isChk(kid,y,m,d,h){
+  try{return !!(cache.checks[kid]&&cache.checks[kid][y]&&cache.checks[kid][y][m]&&
+    cache.checks[kid][y][m][d]&&cache.checks[kid][y][m][d][h])}catch{return false}
+}
+function dayS(kid,y,m,d){
+  const h=allH(kid),pr=h.filter(x=>PI.has(x.id));
+  const done=h.filter(x=>isChk(kid,y,m,d,x.id)).length;
+  const pdone=pr.filter(x=>isChk(kid,y,m,d,x.id)).length;
+  return{done,total:h.length,pdone,ptotal:pr.length,pct:h.length?Math.round(done/h.length*100):0};
+}
+function monS(kid,y,m){
+  const days=getDays(y,m),h=allH(kid);
+  let done=0,total=0;
+  for(let d=1;d<=days;d++)h.forEach(x=>{total++;if(isChk(kid,y,m,d,x.id))done++;});
+  return{done,total,pct:total?Math.round(done/total*100):0};
+}
+function streak(kid){
+  const isN=CY===now.getFullYear()&&CM===now.getMonth();
+  const start=isN?now.getDate():getDays(CY,CM);
+  let s=0;
+  for(let d=start;d>=1;d--){
+    const{done,total}=dayS(kid,CY,CM,d);
+    if(done===total&&total>0)s++;else break;
+  }
+  return s;
+}
+function getPhoto(kid,y,m,d,type){
+  try{return cache.photos[kid][y][m][d][type]}catch{return null}
+}
+
+function toast(msg,dur=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// ══ NAVIGATION ══
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('s-'+id).classList.add('active');window.scrollTo(0,0)}
+function goHome(){VIEW='home';show('home')}
+function goParent(){VIEW='parent';renderParentHabits();renderGallery();show('parent')}
+function goKid(kid){
+  VIEW='kid';KID=kid;
+  selDay=(CY===now.getFullYear()&&CM===now.getMonth())?now.getDate():getDays(CY,CM);
+  renderKid();show('kid');
+}
+function changeMonth(dir){
+  if(dir<0){if(CM===0){CY--;CM=11;}else CM--;}
+  else{if(CM===11){CY++;CM=0;}else CM++;}
+  if(VIEW==='parent')renderParentHabits();
+  else if(VIEW==='kid'){
+    selDay=(CY===now.getFullYear()&&CM===now.getMonth())?now.getDate():getDays(CY,CM);
+    renderKid();
+  }
+}
+function pTab(t){
+  document.querySelectorAll('#s-parent .tab-btn').forEach(b=>{b.style.color='#BBB';b.style.borderBottomColor='transparent'});
+  document.querySelectorAll('#s-parent .tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('ptab-'+t+'-btn').style.color=t==='habits'?'#4AC7A8':'#FF8C94';
+  document.getElementById('ptab-'+t+'-btn').style.borderBottomColor=t==='habits'?'#4AC7A8':'#FF8C94';
+  document.getElementById('ptab-'+t).classList.add('active');
+}
+function kTab(t){
+  const K=KIDS[KID];
+  document.querySelectorAll('#s-kid .tab-btn').forEach(b=>{b.style.color='#BBB';b.style.borderBottomColor='transparent'});
+  document.querySelectorAll('#s-kid .tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('ktab-'+t+'-btn').style.color=K.cd;
+  document.getElementById('ktab-'+t+'-btn').style.borderBottomColor=K.color;
+  document.getElementById('ktab-'+t).classList.add('active');
+  if(t==='u')renderUploads();
+  if(t==='m')renderHeatmap();
+}
+
+// ══ HOME CHIPS ══
+function refreshChips(){
+  const y=now.getFullYear(),m=now.getMonth(),d=now.getDate();
+  [['kid7','h7'],['kid10','h10'],['kid12','h12']].forEach(([kid,p])=>{
+    const{done,total,pdone,ptotal}=dayS(kid,y,m,d);
+    const s=streak(kid);
+    const ep=document.getElementById(p+'p'),et=document.getElementById(p+'t'),es=document.getElementById(p+'s');
+    if(ep)ep.textContent=pdone+'/'+ptotal;
+    if(et)et.textContent=done+'/'+total;
+    if(es)es.textContent=s+'d';
+  });
+}
+
+// ══ PARENT HABITS ══
+function renderParentHabits(){
+  document.getElementById('p-mlbl').textContent=MONTHS[CM]+' '+CY;
+  const avgs=Object.keys(KIDS).map(k=>monS(k,CY,CM).pct);
+  const avg=Math.round(avgs.reduce((a,b)=>a+b,0)/avgs.length);
+  document.getElementById('p-avg').textContent=avg+'%';
+  document.getElementById('p-avgbar').style.width=avg+'%';
+  const cont=document.getElementById('p-cards');cont.innerHTML='';
+  const isN=CY===now.getFullYear()&&CM===now.getMonth();
+  Object.keys(KIDS).forEach(kid=>{
+    const K=KIDS[kid];
+    const{pct,done,total}=monS(kid,CY,CM);
+    const s=streak(kid);
+    const td=isN?dayS(kid,CY,CM,now.getDate()):null;
+    const hw=isN?getPhoto(kid,CY,CM,now.getDate(),'handwriting'):null;
+    const hmk=isN?getPhoto(kid,CY,CM,now.getDate(),'homework'):null;
+    const c=document.createElement('div');
+    c.className='pkcard';c.style.borderLeft='5px solid '+K.color;
+    c.onclick=()=>goKid(kid);
+    c.innerHTML=`
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+        <div style="font-size:32px">${K.m}</div>
+        <div style="flex:1">
+          <div style="font-family:'Arial Black',Arial;font-size:14px;color:#333">${K.name}</div>
+          <div style="font-size:10px;color:${K.color};font-weight:700">${K.label} · 🔥 ${s}d streak</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Arial Black',Arial;font-size:20px;color:${K.color}">${pct}%</div>
+          <div style="font-size:8px;color:#AAA;font-weight:700">MONTH</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:${td?'8px':'0'}">
+        <div class="prog-wrap"><div class="prog-fill" style="background:${K.color};width:${pct}%"></div></div>
+        <div style="font-size:10px;color:#AAA;font-weight:700">${done}/${total}</div>
+      </div>
+      ${td?`<div class="chips">
+        <div class="chip" style="background:${K.cl};border-color:${K.cp}"><div class="chip-ico">📅</div><div class="chip-val" style="color:${K.color}">${td.done}/${td.total}</div><div class="chip-lbl">TODAY</div></div>
+        <div class="chip" style="background:${K.cl};border-color:${K.cp}"><div class="chip-ico">🕌</div><div class="chip-val" style="color:${K.color}">${td.pdone}/${td.ptotal}</div><div class="chip-lbl">PRAYERS</div></div>
+        <div class="chip" style="background:${hw?'#E8F8F5':'#FFF0F1'};border-color:${hw?'#C0EDE3':'#FFD6D9'}"><div class="chip-ico">✏️</div><div class="chip-val" style="color:${hw?'#4AC7A8':'#FF8C94'}">${hw?'✓':'—'}</div><div class="chip-lbl">WRITING</div></div>
+        <div class="chip" style="background:${hmk?'#E8F8F5':'#FFF0F1'};border-color:${hmk?'#C0EDE3':'#FFD6D9'}"><div class="chip-ico">📚</div><div class="chip-val" style="color:${hmk?'#4AC7A8':'#FF8C94'}">${hmk?'✓':'—'}</div><div class="chip-lbl">HOMEWORK</div></div>
+      </div>`:''}`;
+    cont.appendChild(c);
+  });
+}
+
+// ══ GALLERY ══
+function buildPhotoList(){
+  const all=[];
+  Object.entries(cache.photos||{}).forEach(([kid,yrs])=>{
+    Object.entries(yrs||{}).forEach(([y,ms])=>{
+      Object.entries(ms||{}).forEach(([m,ds])=>{
+        Object.entries(ds||{}).forEach(([d,types])=>{
+          Object.entries(types||{}).forEach(([type,data])=>{
+            if(data&&data.url) all.push({kid,y:+y,m:+m,d:+d,type,url:data.url,thumb:data.thumb||data.url,ts:data.ts||0});
+          });
+        });
+      });
+    });
+  });
+  return all.sort((a,b)=>b.ts-a.ts);
+}
+function pf(f){
+  photoFilter=f;
+  ['all','kid7','kid10','kid12'].forEach(k=>{
+    const btn=document.getElementById('pfb-'+k);if(!btn)return;
+    const K2=k==='all'?null:KIDS[k];
+    if(k===f){btn.style.background=K2?K2.color:'#4AC7A8';btn.style.color='#fff';}
+    else{btn.style.background=K2?K2.cl:'#E8F8F5';btn.style.color=K2?K2.cd:'#2D8B74';}
+  });
+  renderGallery();
+}
+function renderGallery(){
+  const all=buildPhotoList();
+  const filtered=photoFilter==='all'?all:all.filter(p=>p.kid===photoFilter);
+  const gal=document.getElementById('p-gallery');
+  if(!filtered.length){
+    gal.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px;color:#AAA;font-size:13px;font-weight:700">📭 No photos yet<br/><span style="font-size:11px">Kids upload from their tracker</span></div>`;
+    return;
+  }
+  gal.innerHTML=filtered.map(p=>{
+    const K=KIDS[p.kid]||{};
+    const label=p.type==='handwriting'?'✏️ Handwriting':'📚 Homework';
+    return `<div class="gallery-item" onclick="openModal('${p.url}','${K.name||p.kid} · ${label} · ${p.d} ${MONTHS[p.m]} ${p.y}')">
+      <img class="gallery-img" src="${p.thumb}" loading="lazy" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 80%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23f0f0f0%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2232%22>📷</text></svg>'"/>
+      <div class="gallery-caption">
+        <div style="font-size:11px;font-weight:900;color:${K.color||'#4AC7A8'}">${K.m||''} ${K.name||p.kid}</div>
+        <div style="font-size:10px;color:#AAA">${p.d} ${MONTHS[p.m]}</div>
+        <div style="font-size:10px;font-weight:700;background:${K.cl||'#E8F8F5'};color:${K.color||'#4AC7A8'};border-radius:8px;padding:2px 8px;display:inline-block;margin-top:2px">${label}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ KID RENDER ══
+function renderKid(){
+  const K=KIDS[KID];
+  const{pct,done,total}=monS(KID,CY,CM);
+  const s=streak(KID);
+  document.getElementById('k-hdr').innerHTML=`
+    <div class="page-hdr" style="background:${K.grad}">
+      <button class="back-btn" style="background:rgba(255,255,255,0.85);color:${K.cd}" onclick="goHome()">← Home</button>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="width:70px;height:70px;border-radius:35px;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;font-size:44px;box-shadow:0 4px 14px rgba(0,0,0,0.1)">${K.m}</div>
+        <div>
+          <div style="font-family:'Arial Black',Arial;font-size:17px;color:${K.cd}">${K.name}</div>
+          <div style="font-size:11px;color:${K.color};font-weight:700">${K.label} · Age ${K.age}</div>
+          <div style="font-size:10px;color:${K.cd};opacity:.7;font-weight:700">🔥 ${s}-day streak</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px">
+        ${[{i:'📊',v:pct+'%',l:'MONTH'},{i:'🔥',v:s+'d',l:'STREAK'},{i:'🕌',v:'5/day',l:'PRAYERS'},{i:'✅',v:done+'/'+total,l:'ALL'}]
+          .map(x=>`<div class="chip" style="background:rgba(255,255,255,0.88);border-color:rgba(255,255,255,0.5)"><div class="chip-ico">${x.i}</div><div class="chip-val" style="color:${K.cd}">${x.v}</div><div class="chip-lbl">${x.l}</div></div>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById('k-mlbl').textContent=MONTHS[CM]+' '+CY;
+  document.getElementById('k-prev').style.background=K.color;
+  document.getElementById('k-next').style.background=K.color;
+  document.getElementById('k-pfill').style.background=K.color;
+  document.getElementById('k-pfill').style.width=pct+'%';
+  document.getElementById('k-ppct').style.color=K.color;
+  document.getElementById('k-ppct').textContent=pct+'%';
+  document.getElementById('k-pdone').textContent=done+' of '+total+' habits done this month';
+  // Reset tabs
+  document.querySelectorAll('#s-kid .tab-btn').forEach(b=>{b.style.color='#BBB';b.style.borderBottomColor='transparent'});
+  document.querySelectorAll('#s-kid .tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('ktab-h-btn').style.color=K.cd;
+  document.getElementById('ktab-h-btn').style.borderBottomColor=K.color;
+  document.getElementById('ktab-h').classList.add('active');
+  renderHabits();
+  renderHeatmap();
+}
+
+function renderHabits(){
+  if(VIEW!=='kid'||!KID)return;
+  const K=KIDS[KID];
+  const el=document.getElementById('k-habits');if(!el)return;
+  el.innerHTML='';
+  const isN=CY===now.getFullYear()&&CM===now.getMonth();
+  const fut=isFut(CY,CM,selDay);
+  const dl=document.createElement('div');
+  dl.style.cssText='background:#fff;padding:8px 16px;font-size:11px;font-weight:700;color:#888;border-bottom:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-between';
+  dl.innerHTML=`<span>📅 <b style="color:${K.color}">${selDay} ${MONTHS[CM]} ${CY}</b>${isN&&selDay===now.getDate()?' · Today':''}</span><span style="opacity:.5;font-size:9px">Tap Month tab to change day</span>`;
+  el.appendChild(dl);
+  K.sections.forEach(sec=>{
+    const hdr=document.createElement('div');
+    hdr.className='sec-hdr';hdr.style.cssText=`background:${sec.c}18;color:${sec.c};border-left:4px solid ${sec.c}`;
+    hdr.textContent=sec.label;el.appendChild(hdr);
+    sec.h.forEach(habit=>{
+      const ip=PI.has(habit.id);
+      const done2=isChk(KID,CY,CM,selDay,habit.id);
+      const row=document.createElement('div');
+      row.className='habit-row'+(ip?' prayer':'');
+      if(fut)row.style.opacity='0.4';
+      row.innerHTML=`${ip?'<div class="prayer-dot" style="height:28px"></div>':''}<span class="habit-ico">${habit.e}</span><span class="habit-name">${habit.n}</span>
+        <div class="chk${done2?(ip?' pdone':' done'):''}" id="chk_${habit.id}" style="${done2&&!ip?'background:'+K.color+';border:none;box-shadow:0 3px 12px rgba(0,0,0,.15)':''}">${done2?'✓':''}</div>`;
+      if(!fut){
+        row.querySelector('.chk').onclick=async function(){
+          const prev=isChk(KID,CY,CM,selDay,habit.id);
+          const nv=!prev;
+          // Optimistic update
+          if(!cache.checks[KID])cache.checks[KID]={};
+          if(!cache.checks[KID][CY])cache.checks[KID][CY]={};
+          if(!cache.checks[KID][CY][CM])cache.checks[KID][CY][CM]={};
+          if(!cache.checks[KID][CY][CM][selDay])cache.checks[KID][CY][CM][selDay]={};
+          if(nv) cache.checks[KID][CY][CM][selDay][habit.id]=true;
+          else delete cache.checks[KID][CY][CM][selDay][habit.id];
+          this.textContent=nv?'✓':'';
+          this.className='chk'+(nv?(ip?' pdone':' done'):'');
+          if(nv&&!ip)this.style.cssText=`background:${K.color};border:none;box-shadow:0 3px 12px rgba(0,0,0,.15)`;
+          else this.style.cssText='';
+          updateProg();
+          const path=`checks/${KID}/${CY}/${CM}/${selDay}/${habit.id}`;
+          if(nv) await fbSet(path,true);
+          else await fbDelete(path);
+          refreshChips();
+        };
+      }
+      el.appendChild(row);
+    });
+  });
+}
+
+function updateProg(){
+  if(!KID)return;
+  const{pct,done,total}=monS(KID,CY,CM);
+  const pf=document.getElementById('k-pfill'),pp=document.getElementById('k-ppct'),pd=document.getElementById('k-pdone');
+  if(pf)pf.style.width=pct+'%';if(pp)pp.textContent=pct+'%';
+  if(pd)pd.textContent=done+' of '+total+' habits done this month';
+}
+
+function renderHeatmap(){
+  if(!KID)return;
+  const K=KIDS[KID];const hm=document.getElementById('k-hmap');if(!hm)return;
+  hm.innerHTML='';
+  const days=getDays(CY,CM),isN=CY===now.getFullYear()&&CM===now.getMonth();
+  for(let d=1;d<=days;d++){
+    const{pct:p2}=dayS(KID,CY,CM,d);
+    const isTd=isN&&d===now.getDate(),isSel=d===selDay,fut=isFut(CY,CM,d);
+    const bg=fut?'#F0F0F0':p2===100?K.color:p2>0?K.cm:'#EBEBEB';
+    const b=document.createElement('div');b.className='bubble';b.id='bbl_'+d;
+    b.style.cssText=`background:${bg};border:${isSel?'2.5px solid '+K.cd:isTd?'2px solid '+K.color:'2px solid transparent'};${p2===100?'box-shadow:0 3px 10px rgba(0,0,0,0.12)':''}`;
+    b.innerHTML=`<div class="bubble-num" style="color:${p2===100?'#fff':fut?'#CCC':'#555'}">${d}</div>${!fut&&p2>0?`<div class="bubble-pct" style="color:${p2===100?'rgba(255,255,255,.85)':'#777'}">${p2}%</div>`:''}`;
+    b.onclick=()=>{selDay=d;kTab('h');renderHabits();document.querySelectorAll('.bubble').forEach(x=>x.style.border='2px solid transparent');b.style.border='2.5px solid '+K.cd;};
+    hm.appendChild(b);
+  }
+  const lg=document.getElementById('k-legend');
+  if(lg)lg.innerHTML=`<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#666;font-weight:700"><div style="width:14px;height:14px;border-radius:4px;background:${K.color}"></div>100%</div><div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#666;font-weight:700"><div style="width:14px;height:14px;border-radius:4px;background:${K.cm}"></div>Partial</div><div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#666;font-weight:700"><div style="width:14px;height:14px;border-radius:4px;background:#EBEBEB"></div>Not yet</div>`;
+}
+
+// ══ UPLOADS ══
+async function doUpload(event,type){
+  const file=event.target.files[0];if(!file)return;
+  if(file.size>10*1024*1024){toast('⚠️ Max file size 10MB');return;}
+  const statusEl=document.getElementById('u-'+( type==='handwriting'?'hw':'hmk')+'-status');
+  const prevEl=document.getElementById('u-'+(type==='handwriting'?'hw':'hmk')+'-prev');
+  statusEl.textContent='⏳ Uploading...';
+  // Local preview
+  const fr=new FileReader();fr.onload=e=>{prevEl.src=e.target.result;prevEl.style.display='block';};fr.readAsDataURL(file);
+  // Base64 for ImgBB
+  const b64=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result.split(',')[1]);r.readAsDataURL(file);});
+  try{
+    const fd=new FormData();fd.append('key',IMGBB);fd.append('image',b64);fd.append('name',`${KID}_${type}_${CY}_${CM}_${selDay}`);
+    const resp=await fetch('https://api.imgbb.com/1/upload',{method:'POST',body:fd});
+    const data=await resp.json();
+    if(data.success){
+      const url=data.data.url,thumb=data.data.thumb?.url||url;
+      await fbSet(`photos/${KID}/${CY}/${CM}/${selDay}/${type}`,{url,thumb,ts:Date.now(),kidName:KIDS[KID].name});
+      if(!cache.photos[KID])cache.photos[KID]={};
+      if(!cache.photos[KID][CY])cache.photos[KID][CY]={};
+      if(!cache.photos[KID][CY][CM])cache.photos[KID][CY][CM]={};
+      if(!cache.photos[KID][CY][CM][selDay])cache.photos[KID][CY][CM][selDay]={};
+      cache.photos[KID][CY][CM][selDay][type]={url,thumb,ts:Date.now()};
+      statusEl.textContent='✅ Uploaded!';
+      toast('📸 Photo saved! Parent can see it now');
+      renderUploads();
+    } else {statusEl.textContent='❌ Failed';toast('❌ Upload failed');}
+  }catch(e){statusEl.textContent='❌ Error';toast('❌ Connection error');console.error(e);}
+}
+
+function renderUploads(){
+  if(!KID)return;
+  const K=KIDS[KID];
+  const isN=CY===now.getFullYear()&&CM===now.getMonth();
+  document.getElementById('u-daylbl').textContent=`${selDay} ${MONTHS[CM]} ${CY}${isN&&selDay===now.getDate()?' (today)':''}`;
+  ['handwriting','homework'].forEach(type=>{
+    const se=document.getElementById('u-'+(type==='handwriting'?'hw':'hmk')+'-status');
+    const pe=document.getElementById('u-'+(type==='handwriting'?'hw':'hmk')+'-prev');
+    const ex=getPhoto(KID,CY,CM,selDay,type);
+    if(ex){se.textContent='✅ Already uploaded';pe.src=ex.url;pe.style.display='block';}
+    else{se.textContent='Tap to upload';pe.style.display='none';pe.src='';}
+  });
+  const cont=document.getElementById('u-today');
+  const hw=getPhoto(KID,CY,CM,selDay,'handwriting');
+  const hmk=getPhoto(KID,CY,CM,selDay,'homework');
+  if(!hw&&!hmk){cont.innerHTML=`<div style="color:#AAA;font-size:12px;font-weight:700;grid-column:1/-1;text-align:center;padding:20px">No uploads yet for this day</div>`;return;}
+  cont.innerHTML=[
+    hw?`<div class="gallery-item" onclick="openModal('${hw.url}','✏️ Handwriting · ${selDay} ${MONTHS[CM]}')"><img class="gallery-img" src="${hw.thumb||hw.url}"/><div class="gallery-caption"><div style="font-size:10px;font-weight:700;background:#E8F8F5;color:#4AC7A8;border-radius:8px;padding:2px 8px;display:inline-block">✏️ Handwriting</div></div></div>`:'',
+    hmk?`<div class="gallery-item" onclick="openModal('${hmk.url}','📚 Homework · ${selDay} ${MONTHS[CM]}')"><img class="gallery-img" src="${hmk.thumb||hmk.url}"/><div class="gallery-caption"><div style="font-size:10px;font-weight:700;background:#FFF0F1;color:#FF8C94;border-radius:8px;padding:2px 8px;display:inline-block">📚 Homework</div></div></div>`:''
+  ].join('');
+}
+
+function openModal(url,info){
+  document.getElementById('modal-img').src=url;
+  document.getElementById('modal-info').textContent=info;
+  document.getElementById('photo-modal').classList.add('open');
+}
+function closeModal(){document.getElementById('photo-modal').classList.remove('open');}
+</script>
+
+</body>
+</html>
